@@ -22,11 +22,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch({
       type: "REQUEST_POSTS"
     }),
-    handleAddStudent : state =>
-    dispatch({
-      type :"ADD_STUDENT",
-     payload : state
-    }),
+    // handleAddStudent1 : state =>
+    // dispatch({
+    //   type :"ADD_STUDENT",
+    //  payload : state
+    // }),
     addStudentThunk: state => dispatch(handleAddStudent(state)) //I have put the actions in a separate file! ;)
    
 });
