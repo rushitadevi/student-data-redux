@@ -7,7 +7,7 @@ import {
 } from "reactstrap";
 import { connect } from "react-redux";
 import Loader from 'react-loader-spinner'
-import { handleAddStudent } from "../actions";
+import { handleAddStudent,handleFetchStudents,handleDeleteStudent } from "../actions";
 //const mapStateToProps = state => state;
 
 
@@ -17,18 +17,13 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
- 
   requestPosts: () =>
     dispatch({
       type: "REQUEST_POSTS"
     }),
-    // handleAddStudent1 : state =>
-    // dispatch({
-    //   type :"ADD_STUDENT",
-    //  payload : state
-    // }),
-    addStudentThunk: state => dispatch(handleAddStudent(state)) //I have put the actions in a separate file! ;)
-   
+    addStudentThunk: state => dispatch(handleAddStudent(state)) ,
+    fetchStudents: () => dispatch(handleFetchStudents()),
+    deleteStudent: id => dispatch(handleDeleteStudent(id))
 });
 
 class student extends React.Component {
@@ -44,67 +39,17 @@ class student extends React.Component {
     }
   }
 
-  
-
   componentDidMount = async () => {
-    var response = await fetch("http://localhost:3450/students", {
-      headers: new Headers({
-        "Content-Type": "application/json"
-      })
-    });
-
-    var jSON = await response.json();
-    this.setState({
-      students: jSON
-    });
-  
+    this.props.fetchStudents()
   };
 
   componentDidUpdate = async () => {
-    var response = await fetch("http://localhost:3450/students", {
-      headers: new Headers({
-        "Content-Type": "application/json"
-      })
-    });
-
-    var jSON = await response.json();
-    this.setState({
-      students: jSON
-    });
-  //  this.props.requestPosts()   
   };
 
-  deleteStudent = async e => {
-    var studID = e.currentTarget.value;
-    try {
-        let url = "http://localhost:3450/students/" + studID;
-          var response = await fetch(url, {
-        method: "DELETE"
-      });
-      var jSon = await response.json();
-    } catch {}
-  };
-
-  // addStudent = async()  => {
-  //  // console.log("jii")
-  //  this.props.requestPosts() 
-  //   // let url =
-  //   //     "http://localhost:3450/students/" ;
-  //   //   let headers = new Headers({
-  //   //     "Content-Type": "application/json"
-  //   //   });
-  //   //   var response = await fetch(url, {
-  //   //     method: "POST",
-  //   //     body: JSON.stringify(this.state.student),
-  //   //   headers: headers
-  //   //   });
-  //   //   if (response.ok) {
-  //   //     var jSON = await response.json();
-  //   //   }
-       
-  //     //this.state.students.push(jSON,"loo")
-  //     //this.setState({ students:this.state.students });
-  //     this.props.requestPosts()
+  // deleteStudent = async e => {
+  //   var studID = e.currentTarget.value;
+  //   console.log("hi")
+    
   // };
 
   addData = (input)=>{
@@ -122,7 +67,7 @@ class student extends React.Component {
     newstudent.email=currentValue
     // if(currentId==="DateOfBirth")
     // newstudent.DateOfBirth=Date.parse(currentValue)
-    console.log("newSude",newstudent)
+    //console.log("newSude",newstudent)
     this.setState({
         student:newstudent
     })
@@ -130,7 +75,7 @@ class student extends React.Component {
   }
 
   render() {
-    console.log(this.state.student,"PP")
+    console.log(this.props.students,"PP")
     return (
       <>
         <div className="container mt-5">
@@ -141,13 +86,12 @@ class student extends React.Component {
                 <input type="text" id="surname" name="SURNAME"  onChange={this.addData}  value={this.state.student.surname}/>
                 <input type="text" id="email" name="EMAIL"  onChange={this.addData} value={this.state.student.email}/>
                 <input type="Date" id="dateOfBirth" name="DateOfBirth"  onChange={this.addData} value={this.state.student.dateOfBirth}/>
-                <input type="button" name="Add" value="Add" style={{float:"right"}} onClick={() =>this.props.addStudentThunk(this.state.student)}  />
-                <input type="button" name="Add" value="Req" style={{float:"right"}}  
-                  />
+                <input type="button" name="Add" value="Add" style={{float:"right"}} 
+                onClick={() =>{this.props.addStudentThunk(this.state.student);this.props.requestPosts()}}  />
             </ListGroupItem>
           </ListGroup>
            {this.props.loader ?  <Loader type="Bars" color="#00BFFF"  height={100}  width={100}/>  :  
-                         this.state.students && this.state.students.map((x, index) => (
+                         this.props.students && this.props.students.map((x, index) => (
                           <div class="row no-gutters">
                             {index % 2 === 0 ? (
                               <ListGroup className="mt-4" style={{ width: "100%" }}>
@@ -161,7 +105,7 @@ class student extends React.Component {
                                   <Button
                                     color="danger"
                                     style={{ float: "right" }}
-                                    onClick={this.deleteStudent}
+                                    onClick={()=>this.props.deleteStudent(x._id)}
                                     value={x._id}
                                   >
                                     Delete
@@ -176,7 +120,7 @@ class student extends React.Component {
                                                       <Button
                                     color="danger"
                                     style={{ float: "right" }}
-                                    onClick={this.deleteStudent}
+                                    onClick={()=>this.props.deleteStudent(x._id)}
                                     value={x._id}
                                   >
                                     Delete
